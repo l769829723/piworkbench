@@ -16,4 +16,4 @@ jobs:
     - name: Run building package
       run: npm run build
     - name: Show finally build status
-      run: ls -la dist/
+      run: ls -la
