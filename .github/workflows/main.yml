@@ -7,13 +7,39 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [12.16.1]
+
     steps:
     - uses: actions/checkout@v2
-    - name: Run installing nodejs and npm
-      run: sudo apt-get install -y nodejs
+    - name: Run building with Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
     - name: Run installing dependencies
-      run: npm i
+      run: npm install
     - name: Run building package
       run: npm run build
-    - name: Show finally build status
-      run: ls -la
+    - name: Run packaging assets
+      run: mkdir -p piworkbench && cp -ravf build/* piworkbench/ && tar czvf piworkbench.tar.gz piworkbench
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        rlease_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload release asset
+      id: upload_release_asset
+      uses: actions/upload-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ stemps.create_release.outputs.upload_url }}
+        asset_path: ./piworkbench.tar.gz
+        asset_name: piworkbench.tar.gz
+        asset_content_type: application/zip
