@@ -10,6 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run installing nodejs and npm
-      run: apt install -y nodejs
+      run: sudo apt-get install -y nodejs
     - name: Show version of the nodejs
       run: node --version
